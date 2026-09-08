@@ -3,8 +3,11 @@ import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import axios from 'axios'
 
-import { resendVerificationEmail } from '../api/auth'
-import { useAuth } from '../stores/auth'
+import { resendVerificationEmail } from '../../api/auth'
+import { useAuth } from '../../stores/auth'
+import AlertMessage from '../../components/AlertMessage.vue'
+import BaseButton from '../../components/BaseButton.vue'
+import AuthLayout from '../../layouts/AuthLayout.vue'
 
 const router = useRouter()
 const auth = useAuth()
@@ -40,7 +43,7 @@ async function submitLogout() {
     logoutLoading.value = true
     try {
         await auth.logout()
-        await router.push({ name: 'register' })
+        await router.push({ name: 'login' })
     } catch {
         errorMessage.value = 'Не удалось выйти из аккаунта'
     } finally {
@@ -50,22 +53,23 @@ async function submitLogout() {
 </script>
 
 <template>
-    <main>
-        <h2>Подтвердите почту</h2>
+    <AuthLayout
+        title="Подтвердите почту"
+        description="Перейдите по ссылке в письме, чтобы завершить регистрацию."
+    >
         <p v-if="auth.user.value">
             Письмо отправлено на почту: {{ auth.user.value.email }}.
         </p>
-        <button type="button" :disabled="loading" @click="resend">
-            {{ loading ? 'Отправляем...' : 'Отправить снова' }}
-        </button>
-        <button type="button" :disabled="logoutLoading" @click="submitLogout">
-            {{ logoutLoading ? 'Выходим...' : 'Выйти' }}
-        </button>
-        <p v-if="sent">
-            Письмо успешно отправлено.
-        </p>
-        <p v-if="errorMessage" role="alert">
-            {{ errorMessage }}
-        </p>
-    </main>
+        <BaseButton :loading="loading" loading-text="Отправляем..." @click="resend">
+            Отправить снова
+        </BaseButton>
+        <BaseButton :loading="logoutLoading" loading-text="Выходим..." @click="submitLogout">
+            Выйти
+        </BaseButton>
+        <AlertMessage
+            :message="sent ? 'Письмо успешно отправлено.' : undefined"
+            type="success"
+        />
+        <AlertMessage :message="errorMessage" />
+    </AuthLayout>
 </template>

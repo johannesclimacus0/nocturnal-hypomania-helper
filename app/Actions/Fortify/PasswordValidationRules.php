@@ -14,6 +14,10 @@ trait PasswordValidationRules
      */
     protected function passwordRules(): array
     {
-        return ['required', 'string', Password::default(), 'confirmed'];
+        $password = app()->environment('production')
+            ? Password::min(12)->mixedCase()->numbers()->symbols()->uncompromised()
+            : Password::min(8);
+
+        return ['required', 'string', 'max:64', $password, 'confirmed'];
     }
 }

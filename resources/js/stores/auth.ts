@@ -1,4 +1,5 @@
 import { ref } from 'vue'
+import axios from 'axios'
 import {
     getCurrentUser,
     logout as sendLogoutRequest,
@@ -7,12 +8,20 @@ import {
 
 const user = ref<User | null>(null)
 const initialized = ref(false)
+const unavailable = ref(false)
 
 async function refresh(): Promise<void> {
     try {
         user.value = await getCurrentUser()
-    } catch {
-        user.value = null
+        unavailable.value = false
+    } catch (error: unknown) {
+        if (axios.isAxiosError(error) && [401, 419].includes(error.response?.status ?? 0)) {
+            user.value = null
+            unavailable.value = false
+            return
+        }
+
+        unavailable.value = true
     } finally {
         initialized.value = true
     }
@@ -35,6 +44,7 @@ export function useAuth() {
     return {
         user,
         initialized,
+        unavailable,
         initialize,
         refresh,
         logout,

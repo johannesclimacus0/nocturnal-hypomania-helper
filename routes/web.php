@@ -4,7 +4,14 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/me', function (Request $request) {
-    return response()->json($request->user());
+    $user = $request->user();
+
+    return response()->json([
+        'id' => $user->getKey(),
+        'name' => $user->name,
+        'email' => $user->email,
+        'email_verified_at' => $user->email_verified_at,
+    ]);
 })->middleware('auth');
 
 Route::view('/', 'app');

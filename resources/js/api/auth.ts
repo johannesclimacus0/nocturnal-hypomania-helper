@@ -10,6 +10,12 @@ export interface RegisterData {
 export interface LoginData {
     email: string
     password: string
+    remember: boolean
+}
+
+export interface LoginResult {
+    two_factor: boolean
+    redirect: string|null
 }
 
 export interface ForgotPasswordData {
@@ -34,8 +40,10 @@ export async function register(data: RegisterData): Promise<void> {
     await http.post('/register', data)
 }
 
-export async function login(data: LoginData): Promise<void> {
-    await http.post('/login', data)
+export async function login(data: LoginData): Promise<LoginResult> {
+    const response = await http.post<LoginResult>('/login', data)
+
+    return response.data
 }
 
 export async function logout(): Promise<void> {
@@ -63,4 +71,3 @@ export async function getCurrentUser(): Promise<User> {
 
     return response.data
 }
-

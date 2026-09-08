@@ -6,12 +6,16 @@ use App\Actions\Fortify\CreateNewUser;
 use App\Actions\Fortify\ResetUserPassword;
 use App\Actions\Fortify\UpdateUserPassword;
 use App\Actions\Fortify\UpdateUserProfileInformation;
+use App\Http\Responses\LoginResponse;
+use App\Http\Responses\PasswordResetLinkResponse;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Str;
-use Laravel\Fortify\Actions\RedirectIfTwoFactorAuthenticatable;
+use Laravel\Fortify\Contracts\FailedPasswordResetLinkRequestResponse;
+use Laravel\Fortify\Contracts\LoginResponse as LoginResponseContract;
+use Laravel\Fortify\Contracts\SuccessfulPasswordResetLinkRequestResponse;
 use Laravel\Fortify\Fortify;
 
 class FortifyServiceProvider extends ServiceProvider
@@ -21,7 +25,9 @@ class FortifyServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        $this->app->bind(LoginResponseContract::class, LoginResponse::class);
+        $this->app->bind(FailedPasswordResetLinkRequestResponse::class, PasswordResetLinkResponse::class);
+        $this->app->bind(SuccessfulPasswordResetLinkRequestResponse::class, PasswordResetLinkResponse::class);
     }
 
     /**
@@ -33,24 +39,21 @@ class FortifyServiceProvider extends ServiceProvider
         Fortify::updateUserProfileInformationUsing(UpdateUserProfileInformation::class);
         Fortify::updateUserPasswordsUsing(UpdateUserPassword::class);
         Fortify::resetUserPasswordsUsing(ResetUserPassword::class);
-        Fortify::redirectUserForTwoFactorAuthenticationUsing(RedirectIfTwoFactorAuthenticatable::class);
-
         RateLimiter::for('login', function (Request $request) {
             $throttleKey = Str::transliterate(Str::lower($request->input(Fortify::username())).'|'.$request->ip());
 
             return Limit::perMinute(5)->by($throttleKey);
         });
 
-        RateLimiter::for('two-factor', function (Request $request) {
-            return Limit::perMinute(5)->by($request->session()->get('login.id'));
+        RateLimiter::for('registration', function (Request $request) {
+            return [
+                Limit::perMinute(3)->by('minute|'.$request->ip()),
+                Limit::perHour(10)->by('hour|'.$request->ip()),
+            ];
         });
 
-        RateLimiter::for('passkeys', function (Request $request) {
-            $credentialId = $request->input('credential.id');
-
-            return Limit::perMinute(10)->by(
-                ($credentialId ?: $request->session()->getId()).'|'.$request->ip()
-            );
+        RateLimiter::for('password-reset', function (Request $request) {
+            return Limit::perMinute(5)->by($request->ip());
         });
     }
 }
