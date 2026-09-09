@@ -10,6 +10,16 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
+/**
+ * @property NightSessionTaskStatus $status
+ * @property-read \App\Models\NightSession|null $nightSession
+ * @property-read \App\Models\Task|null $task
+ * @method static \Database\Factories\NightSessionTaskFactory factory($count = null, $state = [])
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|NightSessionTask newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|NightSessionTask newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|NightSessionTask query()
+ * @mixin \Eloquent
+ */
 #[Fillable(['status', 'position', 'selected_at', 'completed_at', 'skipped_at'])]
 class NightSessionTask extends Model
 {

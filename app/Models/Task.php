@@ -12,6 +12,21 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
+/**
+ * @property TaskDifficulty $difficulty
+ * @property TaskStatus $status
+ * @property-read \App\Models\Area|null $area
+ * @property-read \App\Models\Category|null $category
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\NightSessionTask> $nightSessionTasks
+ * @property-read int|null $night_session_tasks_count
+ * @property-read \App\Models\TaskType|null $taskType
+ * @property-read \App\Models\User|null $user
+ * @method static \Database\Factories\TaskFactory factory($count = null, $state = [])
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Task newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Task newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Task query()
+ * @mixin \Eloquent
+ */
 #[Fillable([
     'title',
     'description',

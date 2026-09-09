@@ -9,6 +9,16 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
+/**
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Task> $tasks
+ * @property-read int|null $tasks_count
+ * @property-read \App\Models\User|null $user
+ * @method static \Database\Factories\TaskTypeFactory factory($count = null, $state = [])
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|TaskType newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|TaskType newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|TaskType query()
+ * @mixin \Eloquent
+ */
 #[Fillable(['name', 'slug'])]
 class TaskType extends Model
 {
