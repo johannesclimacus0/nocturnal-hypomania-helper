@@ -6,10 +6,21 @@ use App\Concerns\HasUuidRouteKey;
 use App\Enums\NightSessionTaskStatus;
 use Database\Factories\NightSessionTaskFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
+/**
+ * @property NightSessionTaskStatus $status
+ * @property-read NightSession|null $nightSession
+ * @property-read Task|null $task
+ * @method static NightSessionTaskFactory factory($count = null, $state = [])
+ * @method static Builder<static>|NightSessionTask newModelQuery()
+ * @method static Builder<static>|NightSessionTask newQuery()
+ * @method static Builder<static>|NightSessionTask query()
+ * @mixin \Eloquent
+ */
 #[Fillable(['status', 'position', 'selected_at', 'completed_at', 'skipped_at'])]
 class NightSessionTask extends Model
 {
