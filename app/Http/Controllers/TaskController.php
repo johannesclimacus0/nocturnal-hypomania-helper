@@ -9,8 +9,8 @@ use App\DTO\Tasks\CreateTaskData;
 use App\DTO\Tasks\UpdateTaskData;
 use App\Enums\TaskDifficulty;
 use App\Enums\TaskStatus;
-use App\Http\Requests\CreateTaskRequest;
-use App\Http\Requests\UpdateTaskRequest;
+use App\Http\Requests\Tasks\CreateTaskRequest;
+use App\Http\Requests\Tasks\UpdateTaskRequest;
 use App\Http\Resources\TaskResource;
 use App\Models\Task;
 use Illuminate\Http\JsonResponse;
@@ -39,7 +39,8 @@ class TaskController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(CreateTaskRequest $request, CreateTaskAction $action): JsonResponse {
+    public function store(CreateTaskRequest $request, CreateTaskAction $action): JsonResponse
+    {
         $user = $request->user();
         $data = $request->validated();
 

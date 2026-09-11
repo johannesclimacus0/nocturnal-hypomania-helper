@@ -37,7 +37,7 @@ class ModelsTest extends TestCase
         $this->assertBelongsTo($task->category(), Category::class, 'category_id');
         $this->assertBelongsTo($task->taskType(), TaskType::class, 'task_type_id');
         $this->assertHasMany($task->nightSessionTasks(), NightSessionTask::class, 'task_id');
-        
+
         $this->assertBelongsTo($taskType->user(), User::class, 'user_id');
         $this->assertHasMany($taskType->tasks(), Task::class, 'task_type_id');
 

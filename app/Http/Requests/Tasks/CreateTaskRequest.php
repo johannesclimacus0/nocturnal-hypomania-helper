@@ -1,8 +1,7 @@
 <?php
 
-namespace App\Http\Requests;
+namespace App\Http\Requests\Tasks;
 
-use App\DTO\Tasks\CreateTaskData;
 use App\Enums\TaskDifficulty;
 use App\Models\Task;
 use Illuminate\Database\Query\Builder;

@@ -17,10 +17,12 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property-read Collection<int, NightSessionTask> $nightSessionTasks
  * @property-read int|null $night_session_tasks_count
  * @property-read User|null $user
+ *
  * @method static NightSessionFactory factory($count = null, $state = [])
  * @method static Builder<static>|NightSession newModelQuery()
  * @method static Builder<static>|NightSession newQuery()
  * @method static Builder<static>|NightSession query()
+ *
  * @mixin Eloquent
  */
 #[Fillable(['started_at', 'ended_at'])]

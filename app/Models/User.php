@@ -41,6 +41,7 @@ use Illuminate\Support\Carbon;
  * @property-read int|null $task_types_count
  * @property-read Collection<int, Task> $tasks
  * @property-read int|null $tasks_count
+ *
  * @method static UserFactory factory($count = null, $state = [])
  * @method static Builder<static>|User newModelQuery()
  * @method static Builder<static>|User newQuery()
@@ -56,6 +57,7 @@ use Illuminate\Support\Carbon;
  * @method static Builder<static>|User whereTwoFactorRecoveryCodes($value)
  * @method static Builder<static>|User whereTwoFactorSecret($value)
  * @method static Builder<static>|User whereUpdatedAt($value)
+ *
  * @mixin \Eloquent
  */
 #[Fillable(['name', 'email', 'password'])]
