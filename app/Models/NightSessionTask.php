@@ -15,10 +15,12 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property NightSessionTaskStatus $status
  * @property-read NightSession|null $nightSession
  * @property-read Task|null $task
+ *
  * @method static NightSessionTaskFactory factory($count = null, $state = [])
  * @method static Builder<static>|NightSessionTask newModelQuery()
  * @method static Builder<static>|NightSessionTask newQuery()
  * @method static Builder<static>|NightSessionTask query()
+ *
  * @mixin \Eloquent
  */
 #[Fillable(['status', 'position', 'selected_at', 'completed_at', 'skipped_at'])]

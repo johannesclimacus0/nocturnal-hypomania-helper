@@ -24,10 +24,12 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property-read int|null $night_session_tasks_count
  * @property-read TaskType|null $taskType
  * @property-read User|null $user
+ *
  * @method static TaskFactory factory($count = null, $state = [])
  * @method static Builder<static>|Task newModelQuery()
  * @method static Builder<static>|Task newQuery()
  * @method static Builder<static>|Task query()
+ *
  * @mixin Eloquent
  */
 #[Fillable([

@@ -7,7 +7,7 @@ use App\DTO\Tasks\CreateTaskData;
 use App\Enums\SystemTaskType;
 use App\Enums\TaskDifficulty;
 use App\Enums\TaskStatus;
-use App\Http\Requests\CreateTaskRequest;
+use App\Http\Requests\Tasks\CreateTaskRequest;
 use App\Models\Area;
 use App\Models\Category;
 use App\Models\TaskType;

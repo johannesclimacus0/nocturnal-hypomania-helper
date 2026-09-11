@@ -40,15 +40,15 @@ class FortifyServiceProvider extends ServiceProvider
         Fortify::updateUserPasswordsUsing(UpdateUserPassword::class);
         Fortify::resetUserPasswordsUsing(ResetUserPassword::class);
         RateLimiter::for('login', function (Request $request) {
-            $throttleKey = Str::transliterate(Str::lower($request->input(Fortify::username())).'|'.$request->ip());
+            $throttleKey = Str::transliterate(Str::lower($request->input(Fortify::username())) . '|' . $request->ip());
 
             return Limit::perMinute(5)->by($throttleKey);
         });
 
         RateLimiter::for('registration', function (Request $request) {
             return [
-                Limit::perMinute(3)->by('minute|'.$request->ip()),
-                Limit::perHour(10)->by('hour|'.$request->ip()),
+                Limit::perMinute(3)->by('minute|' . $request->ip()),
+                Limit::perHour(10)->by('hour|' . $request->ip()),
             ];
         });
 

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Requests;
+namespace App\Http\Requests\Tasks;
 
 use App\Enums\TaskDifficulty;
 use App\Enums\TaskStatus;

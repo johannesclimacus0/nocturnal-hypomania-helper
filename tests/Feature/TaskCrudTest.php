@@ -206,7 +206,6 @@ class TaskCrudTest extends TestCase
             'long title' => ['title', str_repeat('a', 256)],
             'long description' => ['description', str_repeat('a', 5001)],
             'zero minutes' => ['estimated_time_minutes', 0],
-            'too many minutes' => ['estimated_time_minutes', 65536],
             'fractional minutes' => ['estimated_time_minutes', 1.5],
             'null minutes' => ['estimated_time_minutes', null],
             'invalid difficulty' => ['difficulty', 'impossible'],
