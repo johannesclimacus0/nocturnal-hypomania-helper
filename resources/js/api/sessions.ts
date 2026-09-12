@@ -1,6 +1,8 @@
 import http from './http'
 import { getAllPages } from './pagination'
-import type { Task } from './tasks'
+import type { Task, TaskDifficulty } from './tasks'
+
+export type TaskSelectionMode = 'shortest' | 'least_recently_selected' | 'most_skipped'
 
 export interface SessionTask {
     uuid: string
@@ -13,11 +15,20 @@ export interface SessionTask {
     task: Task | null
 }
 export interface Session {
+    selection_strategy: TaskSelectionMode
     uuid: string
     started_at: string | null
     ended_at: string | null
     created_at: string | null
     tasks_count: number
+    available_time_minutes: number
+    difficulty: TaskDifficulty | null
+    area_uuid: string | null
+    area_name: string | null
+    category_uuid: string | null
+    category_name: string | null
+    task_type_uuid: string | null
+    task_type_name: string | null
     tasks?: SessionTask[]
 }
 export function getSessions(): Promise<Session[]> {
@@ -28,8 +39,17 @@ export async function getSession(uuid: string): Promise<Session> {
     return (await http.get<{ data: Session }>(`/api/sessions/${uuid}`)).data.data
 }
 
-export async function createSession(): Promise<Session> {
-    return (await http.post<{ data: Session }>('/api/sessions')).data.data
+export interface CreateSessionPayload {
+    selection_strategy?: TaskSelectionMode
+    available_time_minutes: number
+    difficulty: 'easy' | 'normal' | 'hard' | null
+    area_uuid: string | null
+    category_uuid: string | null
+    task_type_uuid: string | null
+}
+
+export async function createSession(data: CreateSessionPayload): Promise<Session> {
+    return (await http.post<{ data: Session }>('/api/sessions', data)).data.data
 }
 
 export async function finishSession(uuid: string): Promise<Session> {
@@ -42,4 +62,8 @@ export async function addSessionTask(uuid: string, taskUuid: string, position: n
 
 export async function updateSessionTask(uuid: string, taskUuid: string, action: 'complete' | 'skip'): Promise<SessionTask> {
     return (await http.patch<{ data: SessionTask }>(`/api/sessions/${uuid}/tasks/${taskUuid}/${action}`)).data.data
+}
+
+export async function skipSessionTask(uuid: string, taskUuid: string): Promise<{ data: SessionTask; replacement: SessionTask | null }> {
+    return (await http.patch<{ data: SessionTask; replacement: SessionTask | null }>(`/api/sessions/${uuid}/tasks/${taskUuid}/skip`)).data
 }

@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use App\Models\NightSession;
 use App\Models\NightSessionTask;
+use App\Observers\SessionObserver;
 use App\Policies\SessionPolicy;
 use App\Policies\SessionTaskPolicy;
 use Illuminate\Support\Facades\Gate;
@@ -16,7 +17,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+
     }
 
     /**
@@ -26,5 +27,7 @@ class AppServiceProvider extends ServiceProvider
     {
         Gate::policy(NightSession::class, SessionPolicy::class);
         Gate::policy(NightSessionTask::class, SessionTaskPolicy::class);
+
+        NightSession::observe(SessionObserver::class);
     }
 }

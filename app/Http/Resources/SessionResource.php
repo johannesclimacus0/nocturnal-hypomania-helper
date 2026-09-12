@@ -18,6 +18,15 @@ class SessionResource extends JsonResource
             'created_at' => $this->created_at?->toISOString(),
             'tasks_count' => $this->whenCounted('nightSessionTasks'),
             'tasks' => SessionTaskResource::collection($this->whenLoaded('nightSessionTasks')),
+            'available_time_minutes' => $this->available_time_minutes,
+            'selection_strategy' => $this->selection_strategy?->value ?? 'shortest',
+            'difficulty' => $this->difficulty?->value,
+            'area_uuid' => $this->area?->uuid,
+            'area_name' => $this->area?->name,
+            'category_uuid' => $this->category?->uuid,
+            'category_name' => $this->category?->name,
+            'task_type_uuid' => $this->taskType?->uuid,
+            'task_type_name' => $this->taskType?->name,
         ];
     }
 }

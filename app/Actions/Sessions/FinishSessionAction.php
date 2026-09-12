@@ -12,10 +12,13 @@ final class FinishSessionAction
     {
         Gate::forUser($actor)->authorize('update', $session);
 
-        $session->update([
-            'ended_at' => now(),
-        ]);
+        return $session->getConnection()->transaction(function () use ($session): NightSession {
+            $session = $session->newQuery()->whereKey($session->getKey())->lockForUpdate()->firstOrFail();
+            if ($session->ended_at === null) {
+                $session->update(['ended_at' => now()]);
+            }
 
-        return $session;
+            return $session;
+        });
     }
 }

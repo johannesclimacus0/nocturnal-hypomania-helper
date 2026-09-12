@@ -1,10 +1,10 @@
 <?php
 
+use App\Http\Controllers\AreaController;
+use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\SessionController;
 use App\Http\Controllers\SessionTaskController;
 use App\Http\Controllers\TaskController;
-use App\Http\Controllers\AreaController;
-use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\TaskTypeController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -21,6 +21,7 @@ Route::middleware('auth')->group(function (): void {
 
         return response()->json([
             'id' => $user->getKey(),
+            'uuid' => $user->uuid,
             'name' => $user->name,
             'email' => $user->email,
             'email_verified_at' => $user->email_verified_at,

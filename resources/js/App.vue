@@ -3,6 +3,7 @@ import router from './router/router'
 import { useAuth } from './stores/auth'
 import BaseButton from './components/BaseButton.vue'
 import AlertMessage from './components/AlertMessage.vue'
+import SessionResultPopup from './components/SessionResultPopup.vue'
 
 const auth = useAuth()
 
@@ -23,4 +24,7 @@ const retryAuthentication = async function () {
         </BaseButton>
     </main>
     <RouterView v-else />
+    <SessionResultPopup v-if="auth.user.value?.email_verified_at && !auth.unavailable.value"
+                        :key="auth.user.value.uuid"
+                        :user-uuid="auth.user.value.uuid" />
 </template>

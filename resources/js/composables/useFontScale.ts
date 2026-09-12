@@ -2,7 +2,7 @@ import { ref } from 'vue'
 
 const storageKey = 'rpn.font-scale'
 const minimum = 80
-const maximum = 150
+const maximum = 200
 const step = 10
 const scale = ref(100)
 

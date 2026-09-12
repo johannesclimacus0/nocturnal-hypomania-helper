@@ -3,6 +3,8 @@
 namespace App\Models;
 
 use App\Concerns\HasUuidRouteKey;
+use App\Enums\TaskDifficulty;
+use App\Enums\TaskSelectionMode;
 use Database\Factories\NightSessionFactory;
 use Eloquent;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
@@ -25,7 +27,16 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  *
  * @mixin Eloquent
  */
-#[Fillable(['started_at', 'ended_at'])]
+#[Fillable([
+    'started_at',
+    'ended_at',
+    'available_time_minutes',
+    'selection_strategy',
+    'difficulty',
+    'area_id',
+    'category_id',
+    'task_type_id',
+])]
 class NightSession extends Model
 {
     /** @use HasFactory<NightSessionFactory> */
@@ -34,6 +45,8 @@ class NightSession extends Model
     protected $casts = [
         'started_at' => 'immutable_datetime',
         'ended_at' => 'immutable_datetime',
+        'difficulty' => TaskDifficulty::class,
+        'selection_strategy' => TaskSelectionMode::class,
     ];
 
     public function user(): BelongsTo
@@ -44,5 +57,20 @@ class NightSession extends Model
     public function nightSessionTasks(): HasMany
     {
         return $this->hasMany(NightSessionTask::class);
+    }
+
+    public function area(): BelongsTo
+    {
+        return $this->belongsTo(Area::class);
+    }
+
+    public function category(): BelongsTo
+    {
+        return $this->belongsTo(Category::class);
+    }
+
+    public function taskType(): BelongsTo
+    {
+        return $this->belongsTo(TaskType::class);
     }
 }

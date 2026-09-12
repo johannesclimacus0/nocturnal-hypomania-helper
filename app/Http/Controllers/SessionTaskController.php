@@ -35,7 +35,7 @@ class SessionTaskController extends Controller
             position: isset($data['position']) ? (int) $data['position'] : null,
         ));
 
-        return (new SessionTaskResource($task->load(['task.taskType', 'task.area', 'task.category'])))
+        return new SessionTaskResource($task->load(['task.taskType', 'task.area', 'task.category']))
             ->response()->setStatusCode(Response::HTTP_CREATED);
     }
 
@@ -48,8 +48,13 @@ class SessionTaskController extends Controller
 
     public function skip(Request $request, NightSession $session, string $sessionTaskUuid, SkipSessionTaskAction $action): SessionTaskResource
     {
-        $task = $action->handle($request->user(), $session, new UpdateSessionTaskData($sessionTaskUuid));
+        $result = $action->handle($request->user(), $session, new UpdateSessionTaskData($sessionTaskUuid));
 
-        return new SessionTaskResource($task->load(['task.taskType', 'task.area', 'task.category']));
+        return new SessionTaskResource($result->skipped->load(['task.taskType', 'task.area', 'task.category']))
+            ->additional([
+                'replacement' => $result->replacement === null ? null : new SessionTaskResource(
+                    $result->replacement->load(['task.taskType', 'task.area', 'task.category']),
+                )
+            ]);
     }
 }
