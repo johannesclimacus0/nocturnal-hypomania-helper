@@ -43,4 +43,13 @@ class TaskType extends Model
     {
         return $this->hasMany(Task::class);
     }
+
+    public function scopeAvailable(Builder $query, User $user): Builder
+    {
+        return $query->where(function (Builder $query) use ($user) {
+            $query
+                ->whereNull('user_id')
+                ->orWhere('user_id', $user->id);
+        });
+    }
 }

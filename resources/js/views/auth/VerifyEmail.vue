@@ -17,7 +17,7 @@ const loading = ref(false)
 const logoutLoading = ref(false)
 const errorMessage = ref('')
 
-async function resend() {
+const resend = async function () {
     sent.value = false
     errorMessage.value = ''
     loading.value = true
@@ -29,23 +29,23 @@ async function resend() {
         if (axios.isAxiosError(error)) {
             errorMessage.value =
                 error.response?.data?.message ??
-                'Не удалось отправить сообщение'
+                'Could not send the verification email'
         } else {
-            errorMessage.value = 'Произошла неизвестная ошибка'
+        errorMessage.value = 'An unknown error occurred'
         }
     } finally {
         loading.value = false
     }
 }
 
-async function submitLogout() {
+const submitLogout = async function () {
     errorMessage.value = ''
     logoutLoading.value = true
     try {
         await auth.logout()
         await router.push({ name: 'login' })
     } catch {
-        errorMessage.value = 'Не удалось выйти из аккаунта'
+        errorMessage.value = 'Could not sign out'
     } finally {
         logoutLoading.value = false
     }
@@ -54,20 +54,20 @@ async function submitLogout() {
 
 <template>
     <AuthLayout
-        title="Подтвердите почту"
-        description="Перейдите по ссылке в письме, чтобы завершить регистрацию."
+        title="Verify your email"
+        description="Follow the link in the email to finish creating your account."
     >
         <p v-if="auth.user.value">
-            Письмо отправлено на почту: {{ auth.user.value.email }}.
+            We sent an email to {{ auth.user.value.email }}.
         </p>
-        <BaseButton :loading="loading" loading-text="Отправляем..." @click="resend">
-            Отправить снова
+        <BaseButton :loading="loading" loading-text="Sending..." @click="resend">
+            Send again
         </BaseButton>
-        <BaseButton :loading="logoutLoading" loading-text="Выходим..." @click="submitLogout">
-            Выйти
+        <BaseButton :loading="logoutLoading" loading-text="Signing out..." @click="submitLogout">
+            Sign out
         </BaseButton>
         <AlertMessage
-            :message="sent ? 'Письмо успешно отправлено.' : undefined"
+            :message="sent ? 'Verification email sent.' : undefined"
             type="success"
         />
         <AlertMessage :message="errorMessage" />

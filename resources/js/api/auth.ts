@@ -41,9 +41,7 @@ export async function register(data: RegisterData): Promise<void> {
 }
 
 export async function login(data: LoginData): Promise<LoginResult> {
-    const response = await http.post<LoginResult>('/login', data)
-
-    return response.data
+    return (await http.post<LoginResult>('/login', data)).data
 }
 
 export async function logout(): Promise<void> {
@@ -55,19 +53,13 @@ export async function resendVerificationEmail(): Promise<void> {
 }
 
 export async function forgotPassword(data: ForgotPasswordData): Promise<string> {
-    const response = await http.post('/forgot-password', data)
-
-    return response.data.message
+    return (await http.post('/forgot-password', data)).data.message
 }
 
-export async function resetPassword(data: ResetPasswordData): Promise<string> {
-    const response = await http.post('/reset-password', data)
-
-    return response.data.message
+export async function resetPassword(data: ResetPasswordData): Promise<void> {
+    await http.post('/reset-password', data)
 }
 
 export async function getCurrentUser(): Promise<User> {
-    const response = await http.get<User>('/me')
-
-    return response.data
+    return (await http.get<User>('/me')).data
 }

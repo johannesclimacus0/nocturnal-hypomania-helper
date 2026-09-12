@@ -15,8 +15,12 @@ use Symfony\Component\HttpFoundation\Response;
 
 class SessionController extends Controller
 {
-    public function index(Request $request): AnonymousResourceCollection
+    public function index(Request $request): AnonymousResourceCollection|Response
     {
+        if (! $request->expectsJson()) {
+            return response()->view('app');
+        }
+
         Gate::authorize('viewAny', NightSession::class);
 
         return SessionResource::collection($request->user()->nightSessions()
@@ -32,8 +36,12 @@ class SessionController extends Controller
             ->response()->setStatusCode(Response::HTTP_CREATED);
     }
 
-    public function show(NightSession $session): SessionResource
+    public function show(NightSession $session): SessionResource|Response
     {
+        if (! request()->expectsJson()) {
+            return response()->view('app');
+        }
+
         Gate::authorize('view', $session);
 
         $session->load(['nightSessionTasks' => fn ($query) => $query

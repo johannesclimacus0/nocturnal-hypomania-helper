@@ -23,7 +23,7 @@ const errors = ref<Record<string, string[]>>({})
 const generalError = ref('')
 const loading = ref(false)
 
-async function submit() {
+const submit = async function () {
     errors.value = {}
     generalError.value = ''
     loading.value = true
@@ -33,7 +33,7 @@ async function submit() {
         await auth.refresh()
 
         if (!auth.user.value) {
-            throw new Error('Пользователь создан, но сессия не найдена')
+            throw new Error('Account created, but no session was found')
         }
 
         await router.push({
@@ -46,13 +46,13 @@ async function submit() {
             if (Object.keys(errors.value).length === 0) {
                 generalError.value =
                     error.response?.data?.message ??
-                    'Не удалось зарегистрироваться'
+                    'Could not create your account'
             }
         } else {
             generalError.value =
                 error instanceof Error
                     ? error.message
-                    : 'Произошла неизвестная ошибка'
+                    : 'An unknown error occurred'
         }
     } finally {
         loading.value = false
@@ -61,12 +61,12 @@ async function submit() {
 </script>
 
 <template>
-    <AuthLayout title="Регистрация" description="Создайте аккаунт, чтобы продолжить.">
-        <form @submit.prevent="submit">
+    <AuthLayout title="Create an account" description="Create an account to continue.">
+        <form class="flex flex-col gap-4" @submit.prevent="submit">
             <FormField
                 id="name"
                 v-model.trim="formData.name"
-                label="Имя"
+                label="Name"
                 type="text"
                 autocomplete="name"
                 :error="errors.name?.[0]"
@@ -84,7 +84,7 @@ async function submit() {
             <FormField
                 id="password"
                 v-model="formData.password"
-                label="Пароль"
+                label="Password"
                 type="password"
                 autocomplete="new-password"
                 minlength="8"
@@ -95,7 +95,7 @@ async function submit() {
             <FormField
                 id="password_confirmation"
                 v-model="formData.password_confirmation"
-                label="Повторите пароль"
+                label="Confirm password"
                 type="password"
                 autocomplete="new-password"
                 minlength="8"
@@ -103,15 +103,15 @@ async function submit() {
                 :error="errors.password_confirmation?.[0]"
                 required
             />
-            <SubmitButton :loading="loading" loading-text="Регистрируем...">
-                Зарегистрироваться
+            <SubmitButton :loading="loading" loading-text="Creating account...">
+                Create account
             </SubmitButton>
             <AlertMessage :message="generalError" />
         </form>
 
         <template #footer>
             <RouterLink :to="{ name: 'login' }">
-                Уже есть аккаунт? Войти
+                Already have an account? Sign in
             </RouterLink>
         </template>
     </AuthLayout>

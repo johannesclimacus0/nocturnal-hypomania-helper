@@ -24,8 +24,12 @@ class TaskController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(Request $request): AnonymousResourceCollection
+    public function index(Request $request): AnonymousResourceCollection|Response
     {
+        if (! $request->expectsJson()) {
+            return response()->view('app');
+        }
+
         Gate::authorize('viewAny', Task::class);
 
         $tasks = $request->user()->tasks()
@@ -60,8 +64,12 @@ class TaskController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Task $task): TaskResource
+    public function show(Task $task): TaskResource|Response
     {
+        if (! request()->expectsJson()) {
+            return response()->view('app');
+        }
+
         Gate::authorize('view', $task);
 
         return new TaskResource($task->load(['taskType', 'area', 'category']));

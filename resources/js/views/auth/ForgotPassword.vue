@@ -27,10 +27,10 @@ const submit = async () => {
         if (axios.isAxiosError(error)) {
             errors.value = error.response?.data?.errors ?? {}
             errorMessage.value = Object.keys(errors.value).length === 0
-                ? error.response?.data?.message ?? 'Не удалось отправить письмо'
+                ? error.response?.data?.message ?? 'Could not send the reset email'
                 : ''
         } else {
-            errorMessage.value = 'Произошла неизвестная ошибка'
+            errorMessage.value = 'An unknown error occurred'
         }
     } finally {
         loading.value = false
@@ -39,11 +39,8 @@ const submit = async () => {
 </script>
 
 <template>
-    <AuthLayout
-        title="Забыли пароль?"
-        description="Укажите email, и мы отправим ссылку для смены пароля."
-    >
-        <form @submit.prevent="submit">
+    <AuthLayout title="Forgot password?" description="Enter your email and we will send a password reset link.">
+        <form class="flex flex-col gap-4" @submit.prevent="submit">
             <FormField
                 id="email"
                 v-model.trim="formData.email"
@@ -54,8 +51,8 @@ const submit = async () => {
                 :error="errors.email?.[0]"
                 required
             />
-            <SubmitButton :loading="loading" loading-text="Отправляем...">
-                Отправить ссылку
+            <SubmitButton :loading="loading" loading-text="Sending...">
+                Send reset link
             </SubmitButton>
             <AlertMessage :message="message" type="success" />
             <AlertMessage :message="errorMessage" />
@@ -63,7 +60,7 @@ const submit = async () => {
 
         <template #footer>
             <RouterLink :to="{ name: 'login' }">
-                Вернуться ко входу
+                Back to sign in
             </RouterLink>
         </template>
     </AuthLayout>

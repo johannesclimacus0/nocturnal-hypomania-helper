@@ -40,10 +40,10 @@ const submit = async () => {
         if (axios.isAxiosError(error)) {
             errors.value = error.response?.data?.errors ?? {}
             errorMessage.value = Object.keys(errors.value).length === 0
-                ? error.response?.data?.message ?? 'Не удалось изменить пароль'
+                ? error.response?.data?.message ?? 'Could not change your password'
                 : ''
         } else {
-            errorMessage.value = 'Произошла неизвестная ошибка'
+            errorMessage.value = 'An unknown error occurred'
         }
     } finally {
         loading.value = false
@@ -52,8 +52,8 @@ const submit = async () => {
 </script>
 
 <template>
-    <AuthLayout title="Изменить пароль" description="Введите новый пароль для аккаунта.">
-        <form @submit.prevent="submit">
+    <AuthLayout title="Change password" description="Enter a new password for your account.">
+        <form class="flex flex-col gap-4" @submit.prevent="submit">
             <FormField
                 id="email"
                 v-model.trim="formData.email"
@@ -66,7 +66,7 @@ const submit = async () => {
             <FormField
                 id="password"
                 v-model="formData.password"
-                label="Новый пароль"
+                label="New password"
                 type="password"
                 autocomplete="new-password"
                 minlength="8"
@@ -77,7 +77,7 @@ const submit = async () => {
             <FormField
                 id="password_confirmation"
                 v-model="formData.password_confirmation"
-                label="Повторите пароль"
+                label="Confirm password"
                 type="password"
                 autocomplete="new-password"
                 minlength="8"
@@ -85,15 +85,15 @@ const submit = async () => {
                 :error="errors.password_confirmation?.[0]"
                 required
             />
-            <SubmitButton :loading="loading" loading-text="Меняем пароль...">
-                Сменить пароль
+            <SubmitButton :loading="loading" loading-text="Changing password...">
+                Change password
             </SubmitButton>
         </form>
         <AlertMessage :message="errorMessage" />
 
         <template #footer>
             <RouterLink :to="{ name: 'login' }">
-                Вернуться ко входу
+                Back to sign in
             </RouterLink>
         </template>
     </AuthLayout>
