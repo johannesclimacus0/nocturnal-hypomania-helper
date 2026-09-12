@@ -19,6 +19,7 @@ class SessionResource extends JsonResource
             'tasks_count' => $this->whenCounted('nightSessionTasks'),
             'tasks' => SessionTaskResource::collection($this->whenLoaded('nightSessionTasks')),
             'available_time_minutes' => $this->available_time_minutes,
+            'selection_strategy' => $this->selection_strategy?->value ?? 'shortest',
             'difficulty' => $this->difficulty?->value,
             'area_uuid' => $this->area?->uuid,
             'area_name' => $this->area?->name,

@@ -3,6 +3,7 @@
 namespace App\DTO\Sessions;
 
 use App\Enums\TaskDifficulty;
+use App\Enums\TaskSelectionMode;
 
 final readonly class CreateSessionData
 {
@@ -12,5 +13,6 @@ final readonly class CreateSessionData
         public ?string $areaUuid,
         public ?string $categoryUuid,
         public ?string $taskTypeUuid,
+        public TaskSelectionMode $selectionStrategy = TaskSelectionMode::Shortest,
     ) {}
 }

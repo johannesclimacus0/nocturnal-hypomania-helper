@@ -10,7 +10,7 @@ import BaseInput from '../../components/BaseInput.vue'
 import BaseSelect from '../../components/BaseSelect.vue'
 import SessionsTable from '../../components/SessionsTable.vue'
 import { shortUuid } from '../../utils/display'
-import { createSession, getSessions, type Session } from '../../api/sessions'
+import { createSession, getSessions, type Session, type TaskSelectionMode } from '../../api/sessions'
 import {
     getTaskFormOptions,
     type AreaOption,
@@ -37,12 +37,14 @@ const form = reactive<{
     areaUuid: string
     categoryUuid: string
     taskTypeUuid: string
+    selectionStrategy: TaskSelectionMode
 }>({
     availableTimeMinutes: '60',
     difficulty: 'normal',
     areaUuid: '',
     categoryUuid: '',
     taskTypeUuid: '',
+    selectionStrategy: 'shortest',
 })
 
 const active = computed(() => sessions.value.filter(session => !session.ended_at))
@@ -76,6 +78,7 @@ const start = async function (): Promise<void> {
             area_uuid: form.areaUuid || null,
             category_uuid: form.categoryUuid || null,
             task_type_uuid: form.taskTypeUuid || null,
+            selection_strategy: form.selectionStrategy,
         })
         sessions.value.unshift(session)
         await router.push(`/sessions/${session.uuid}`)
@@ -115,9 +118,24 @@ onMounted(async () => {
                 </RouterLink>
             </template>
             <template v-else>
-                <p class="mb-5 text-xs text-zinc-400">Start a session, then choose tasks to work on.</p>
+                <p class="mb-5 text-xs text-zinc-400">Choose your preferences to start a session with matching tasks.</p>
             </template>
             <form class="space-y-3" @submit.prevent="start">
+                <BaseSelect id="session-strategy"
+                            v-model="form.selectionStrategy"
+                            label="task selection"
+                            :disabled="starting"
+                            :error="errors.selection_strategy?.[0]"
+                >
+                    <option value="shortest">shortest first</option>
+                    <option value="least_recently_selected">least recently selected</option>
+                    <option value="most_skipped">most skipped</option>
+                </BaseSelect>
+                <p class="text-xs leading-5 text-zinc-500">
+                    {{ form.selectionStrategy === 'shortest' ? 'Start with tasks that take the least time.'
+                        : form.selectionStrategy === 'least_recently_selected' ? 'Try unseen tasks first, then those not selected for the longest time.'
+                        : 'Return to tasks you have skipped most often.' }}
+                </p>
                 <BaseInput id="available-time"
                            v-model="form.availableTimeMinutes"
                            label="available time (minutes)"

@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Concerns\HasUuidRouteKey;
 use App\Enums\TaskDifficulty;
+use App\Enums\TaskSelectionMode;
 use Database\Factories\NightSessionFactory;
 use Eloquent;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
@@ -30,6 +31,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
     'started_at',
     'ended_at',
     'available_time_minutes',
+    'selection_strategy',
     'difficulty',
     'area_id',
     'category_id',
@@ -44,6 +46,7 @@ class NightSession extends Model
         'started_at' => 'immutable_datetime',
         'ended_at' => 'immutable_datetime',
         'difficulty' => TaskDifficulty::class,
+        'selection_strategy' => TaskSelectionMode::class,
     ];
 
     public function user(): BelongsTo

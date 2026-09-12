@@ -2,6 +2,7 @@
 
 namespace App\Actions\Sessions;
 
+use App\Enums\TaskSelectionMode;
 use App\Enums\TaskStatus;
 use App\Models\NightSession;
 use App\Models\Task;
@@ -11,18 +12,14 @@ use App\Services\TaskSelection\Pipes\ExcludeSessionTasks;
 use App\Services\TaskSelection\Pipes\FilterDifficulty;
 use App\Services\TaskSelection\Pipes\FilterTaxonomy;
 use App\Services\TaskSelection\Pipes\LimitEstimatedTime;
-use App\Services\TaskSelection\Strategies\TaskSelectionStrategy;
+use App\Services\TaskSelection\Strategies\LeastRecentlySelectedStrategy;
+use App\Services\TaskSelection\Strategies\MostSkippedStrategy;
+use App\Services\TaskSelection\Strategies\ShortestTaskStrategy;
 use Illuminate\Pipeline\Pipeline;
 use Illuminate\Support\Facades\Gate;
 
 final class SelectNextTaskAction
 {
-    public function __construct(
-        private TaskSelectionStrategy $strategy,
-    )
-    {
-    }
-
     public function handle(User $actor, NightSession $session): ?Task
     {
         Gate::forUser($actor)->authorize('update', $session);
@@ -49,6 +46,12 @@ final class SelectNextTaskAction
                 FilterTaxonomy::class,
             ])->thenReturn();
 
-        return $this->strategy->select($context->candidates);
+        $strategy = match ($session->selection_strategy ?? TaskSelectionMode::Shortest) {
+            TaskSelectionMode::Shortest => ShortestTaskStrategy::class,
+            TaskSelectionMode::LeastRecentlySelected => LeastRecentlySelectedStrategy::class,
+            TaskSelectionMode::MostSkipped => MostSkippedStrategy::class,
+        };
+
+        return app($strategy)->select($context->candidates);
     }
 }

@@ -2,9 +2,7 @@
 
 namespace App\Actions\Sessions;
 
-use App\Actions\SessionTasks\CreateSessionTaskAction;
 use App\DTO\Sessions\CreateSessionData;
-use App\DTO\SessionTasks\CreateSessionTaskData;
 use App\Models\NightSession;
 use App\Models\TaskType;
 use App\Models\User;
@@ -31,6 +29,7 @@ final readonly class CreateSessionAction
 
         return $actor->nightSessions()->create([
             'available_time_minutes' => $data->availableTimeMinutes,
+            'selection_strategy' => $data->selectionStrategy,
             'difficulty' => $data->difficulty,
             'area_id' => $area?->getKey(),
             'category_id' => $category?->getKey(),

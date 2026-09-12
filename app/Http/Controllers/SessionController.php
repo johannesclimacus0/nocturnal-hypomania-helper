@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Actions\Sessions\CreateSessionAction;
 use App\Actions\Sessions\FinishSessionAction;
 use App\Actions\Sessions\StartSessionAction;
 use App\DTO\Sessions\CreateSessionData;
 use App\Enums\TaskDifficulty;
+use App\Enums\TaskSelectionMode;
 use App\Http\Requests\Sessions\CreateSessionRequest;
 use App\Http\Resources\SessionResource;
 use App\Models\NightSession;
@@ -40,6 +40,7 @@ class SessionController extends Controller
             areaUuid: $data['area_uuid'] ?? null,
             categoryUuid: $data['category_uuid'] ?? null,
             taskTypeUuid: $data['task_type_uuid'] ?? null,
+            selectionStrategy: TaskSelectionMode::from($data['selection_strategy'] ?? 'shortest'),
         );
 
         $session = $action->handle($request->user(), $sessionData);

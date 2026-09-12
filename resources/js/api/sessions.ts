@@ -2,6 +2,8 @@ import http from './http'
 import { getAllPages } from './pagination'
 import type { Task, TaskDifficulty } from './tasks'
 
+export type TaskSelectionMode = 'shortest' | 'least_recently_selected' | 'most_skipped'
+
 export interface SessionTask {
     uuid: string
     task_uuid: string
@@ -13,6 +15,7 @@ export interface SessionTask {
     task: Task | null
 }
 export interface Session {
+    selection_strategy: TaskSelectionMode
     uuid: string
     started_at: string | null
     ended_at: string | null
@@ -37,6 +40,7 @@ export async function getSession(uuid: string): Promise<Session> {
 }
 
 export interface CreateSessionPayload {
+    selection_strategy?: TaskSelectionMode
     available_time_minutes: number
     difficulty: 'easy' | 'normal' | 'hard' | null
     area_uuid: string | null
