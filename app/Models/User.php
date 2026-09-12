@@ -101,4 +101,9 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return $this->hasMany(NightSession::class);
     }
+
+    public function receivesBroadcastNotificationsOn(): string
+    {
+        return 'users.' . $this->uuid;
+    }
 }

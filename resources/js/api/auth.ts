@@ -31,6 +31,7 @@ export interface ResetPasswordData {
 
 export interface User {
     id: number
+    uuid: string
     name: string
     email: string
     email_verified_at: string|null

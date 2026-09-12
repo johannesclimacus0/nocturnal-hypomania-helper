@@ -21,6 +21,7 @@ Route::middleware('auth')->group(function (): void {
 
         return response()->json([
             'id' => $user->getKey(),
+            'uuid' => $user->uuid,
             'name' => $user->name,
             'email' => $user->email,
             'email_verified_at' => $user->email_verified_at,
