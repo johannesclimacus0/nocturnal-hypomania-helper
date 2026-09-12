@@ -43,6 +43,10 @@ class SessionController extends Controller
 
         $session = $action->handle($request->user(), $sessionData);
 
+        $session->load(['nightSessionTasks' => fn ($query) => $query
+            ->orderBy('position')->orderBy('id')
+            ->with(['task.taskType', 'task.area', 'task.category'])]);
+
         return new SessionResource($session->loadCount('nightSessionTasks'))
             ->response()
             ->setStatusCode(Response::HTTP_CREATED);
