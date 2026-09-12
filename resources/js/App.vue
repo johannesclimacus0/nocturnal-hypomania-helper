@@ -2,10 +2,11 @@
 import router from './router/router'
 import { useAuth } from './stores/auth'
 import BaseButton from './components/BaseButton.vue'
+import AlertMessage from './components/AlertMessage.vue'
 
 const auth = useAuth()
 
-async function retryAuthentication() {
+const retryAuthentication = async function () {
     await auth.refresh()
 
     if (!auth.unavailable.value) {
@@ -15,12 +16,10 @@ async function retryAuthentication() {
 </script>
 
 <template>
-    <main v-if="auth.unavailable.value">
-        <p role="alert">
-            Не удалось проверить авторизацию. Проверьте подключение и попробуйте снова.
-        </p>
+    <main v-if="auth.unavailable.value" class="mx-auto max-w-xl px-5 py-12">
+        <AlertMessage message="Could not verify your session. Check your connection and try again." class="mb-3" />
         <BaseButton @click="retryAuthentication">
-            Повторить
+            Retry
         </BaseButton>
     </main>
     <RouterView v-else />

@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "c0fb4e928eeee82636450ec4af0a2fb8",
+    "content-hash": "096c7f361141be16f8edd0d45c7698f6",
     "packages": [
         {
             "name": "bacon/bacon-qr-code",
@@ -8124,6 +8124,79 @@
             "time": "2026-03-17T11:56:53+00:00"
         },
         {
+            "name": "johannesclimacus/artisan-factory",
+            "version": "v0.2.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/johannesclimacus0/artisan-factory.git",
+                "reference": "d736cbcbd97db84ca0a804c75aeee1d1aaf2ee79"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/johannesclimacus0/artisan-factory/zipball/d736cbcbd97db84ca0a804c75aeee1d1aaf2ee79",
+                "reference": "d736cbcbd97db84ca0a804c75aeee1d1aaf2ee79",
+                "shasum": ""
+            },
+            "require": {
+                "illuminate/console": "^13.0",
+                "illuminate/database": "^13.0",
+                "illuminate/support": "^13.0",
+                "php": "^8.3"
+            },
+            "require-dev": {
+                "larastan/larastan": "^3.9",
+                "laravel/pao": "^1.0",
+                "laravel/pint": "^1.29",
+                "orchestra/testbench": "^11.0",
+                "pestphp/pest": "^4.6||^5.0",
+                "pestphp/pest-plugin-laravel": "^4.1||^5.0",
+                "pestphp/pest-plugin-type-coverage": "^4.0||^5.0",
+                "phpstan/extension-installer": "^1.4"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "JohannesClimacus\\ArtisanFactory\\ArtisanFactoryServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "JohannesClimacus\\ArtisanFactory\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "johannesclimacus",
+                    "email": "dhdhfgffifid@gmail.com",
+                    "role": "Developer"
+                }
+            ],
+            "description": "Create models from Artisan via factories",
+            "homepage": "https://github.com/johannesclimacus/artisan-factory",
+            "keywords": [
+                "artisan-factory",
+                "johannesclimacus",
+                "laravel"
+            ],
+            "support": {
+                "issues": "https://github.com/johannesclimacus0/artisan-factory/issues",
+                "source": "https://github.com/johannesclimacus0/artisan-factory/tree/v0.2.0"
+            },
+            "funding": [
+                {
+                    "url": "https://github.com/johannesclimacus0",
+                    "type": "github"
+                }
+            ],
+            "time": "2026-09-01T01:56:33+00:00"
+        },
+        {
             "name": "laravel/agent-detector",
             "version": "v2.0.2",
             "source": {
@@ -10383,5 +10456,5 @@
         "php": "^8.3"
     },
     "platform-dev": {},
-    "plugin-api-version": "2.6.0"
+    "plugin-api-version": "2.9.0"
 }

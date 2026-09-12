@@ -6,12 +6,28 @@ import {
 import { useAuth } from "../stores/auth";
 
 const routes: RouteRecordRaw[] = [
-    { path: '/', redirect: { name: 'register' } },
+    {
+        path: '/',
+        component: () => import('../views/auth/Home.vue'),
+        meta: { requiresAuth: true, requiresVerifiedEmail: true },
+        children: [
+            { path: '', name: 'home', component: () => import('../views/app/Tonight.vue'), meta: { label: 'tonight' } },
+            { path: 'tasks', component: () => import('../views/app/TasksIndex.vue'), meta: { label: 'tasks' } },
+            { path: 'tasks/create', component: () => import('../views/app/TaskForm.vue'), meta: { label: 'tasks / new' } },
+            { path: 'tasks/:uuid', component: () => import('../views/app/TaskDetail.vue'), meta: { label: 'tasks / detail' } },
+            { path: 'tasks/:uuid/edit', component: () => import('../views/app/TaskForm.vue'), props: { editing: true }, meta: { label: 'tasks / edit' } },
+            { path: 'sessions', component: () => import('../views/app/SessionsIndex.vue'), meta: { label: 'sessions' } },
+            { path: 'sessions/:uuid', component: () => import('../views/app/SessionDetail.vue'), meta: { label: 'sessions / run' } },
+            { path: 'areas', component: () => import('../views/app/AreasIndex.vue'), meta: { label: 'taxonomy / areas' } },
+            { path: 'categories', component: () => import('../views/app/CategoriesIndex.vue'), meta: { label: 'taxonomy / categories' } },
+            { path: 'task-types', component: () => import('../views/app/TaskTypesIndex.vue'), meta: { label: 'taxonomy / types' } },
+        ],
+    },
     { path: '/register', name: 'register', component: () => import('../views/auth/Register.vue'), meta: { guestOnly: true } },
     { path: '/verify-email', name: 'verify-email', component: () => import('../views/auth/VerifyEmail.vue'), meta: { requiresAuth: true, requiresUnverifiedEmail: true } },
     { path: '/forgot-password', name: 'forgot-password', component: () => import('../views/auth/ForgotPassword.vue'), meta: { guestOnly: true } },
     { path: '/reset-password/:token', name: 'reset-password', component: () => import('../views/auth/ResetPassword.vue'), meta: { guestOnly: true } },
-    { path: '/home', name: 'home', component: () => import('../views/auth/Home.vue'), meta: { requiresAuth: true, requiresVerifiedEmail: true} },
+    { path: '/home', redirect: { name: 'home' } },
     { path: '/login', name: 'login', component: ()=> import('../views/auth/Login.vue'), meta: { guestOnly: true }}
 ]
 

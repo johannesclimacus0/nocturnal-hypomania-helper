@@ -7,7 +7,7 @@ import {
 } from '../api/auth'
 
 const user = ref<User | null>(null)
-const initialized = ref(false)
+let initialized = false
 const unavailable = ref(false)
 
 async function refresh(): Promise<void> {
@@ -23,12 +23,12 @@ async function refresh(): Promise<void> {
 
         unavailable.value = true
     } finally {
-        initialized.value = true
+        initialized = true
     }
 }
 
 async function initialize(): Promise<void> {
-    if (initialized.value) {
+    if (initialized) {
         return
     }
 
@@ -43,7 +43,6 @@ async function logout(): Promise<void> {
 export function useAuth() {
     return {
         user,
-        initialized,
         unavailable,
         initialize,
         refresh,

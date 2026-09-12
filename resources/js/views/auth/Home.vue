@@ -21,7 +21,7 @@ const logout = async function () {
         await auth.logout()
         await router.replace({ name: 'login' })
     } catch {
-        errorMessage.value = 'Не удалось выйти с аккаунта'
+        errorMessage.value = 'Could not sign out'
     } finally {
         loading.value = false
     }
@@ -29,17 +29,9 @@ const logout = async function () {
 </script>
 
 <template>
-    <UserLayout title="Главная">
-        <template #actions>
-            <BaseButton :loading="loading" loading-text="Выходим..." @click="logout">
-                Выйти
-            </BaseButton>
-        </template>
-
-        <section v-if="user">
-            <p>Вы вошли как {{ user.name }}</p>
-            <p>{{ user.email }}</p>
-        </section>
-        <AlertMessage :message="errorMessage" />
+    <UserLayout>
+        <template #user><div v-if="user" class="space-y-1"><p class="truncate text-zinc-200">{{ user.name }}</p></div></template>
+        <template #actions><BaseButton :loading="loading" loading-text="Signing out..." @click="logout">logout</BaseButton><AlertMessage :message="errorMessage" /></template>
+        <RouterView />
     </UserLayout>
 </template>

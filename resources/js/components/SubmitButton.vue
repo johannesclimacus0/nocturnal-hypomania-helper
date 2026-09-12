@@ -8,7 +8,7 @@ withDefaults(
     }>(),
     {
         loading: false,
-        loadingText: 'Подождите...',
+        loadingText: 'Please wait...',
     },
 )
 </script>

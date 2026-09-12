@@ -29,10 +29,6 @@ const submit = async function () {
     try {
         const result = await login({ ...form })
 
-        if (result.two_factor) {
-            throw new Error('Двухфакторная аутентификация временно недоступна')
-        }
-
         if (result.redirect) {
             const target = new URL(result.redirect, window.location.origin)
 
@@ -47,7 +43,7 @@ const submit = async function () {
         const user = auth.user.value
 
         if (!user) {
-            throw new Error('Не удалось получить пользователя после входа')
+            throw new Error('Could not load your account after signing in')
         }
         await router.replace({
             name: user.email_verified_at ? 'home' : 'verify-email',
@@ -59,13 +55,13 @@ const submit = async function () {
             if (Object.keys(errors.value).length === 0) {
                 errorMessage.value =
                     error.response?.data?.message ??
-                    'Не удалось войти в аккаунт'
+                    'Could not sign in'
             }
         } else {
             errorMessage.value =
                 error instanceof Error
                     ? error.message
-                    : 'Произошла неизвестная ошибка'
+                    : 'An unknown error occurred'
         }
     } finally {
         loading.value = false
@@ -74,8 +70,8 @@ const submit = async function () {
 </script>
 
 <template>
-    <AuthLayout title="Вход" description="Войдите в свой аккаунт.">
-        <form @submit.prevent="submit">
+    <AuthLayout title="Sign in" description="Sign in to your account.">
+        <form class="flex flex-col gap-4" @submit.prevent="submit">
             <FormField
                 id="email"
                 v-model="form.email"
@@ -88,21 +84,21 @@ const submit = async function () {
             <FormField
                 id="password"
                 v-model="form.password"
-                label="Пароль"
+                label="Password"
                 type="password"
                 autocomplete="current-password"
                 :error="errors.password?.[0]"
                 required
             />
-            <SubmitButton :loading="loading" loading-text="Входим...">
-                Войти
+            <SubmitButton :loading="loading" loading-text="Signing in...">
+                Sign in
             </SubmitButton>
             <label>
-                <input v-model="form.remember" type="checkbox">
-                Запомнить меня
+                <input v-model="form.remember" type="checkbox" class="accent-lime-200">
+                Remember me
             </label>
             <AlertMessage
-                :message="$route.query.reset === 'success' ? 'Пароль изменён. Теперь можно войти.' : undefined"
+                :message="$route.query.reset === 'success' ? 'Password changed. You can now sign in.' : undefined"
                 type="success"
             />
             <AlertMessage :message="errorMessage" />
@@ -110,10 +106,10 @@ const submit = async function () {
 
         <template #footer>
             <RouterLink :to="{ name: 'forgot-password' }">
-                Забыли пароль?
+                Forgot password?
             </RouterLink>
             <RouterLink :to="{ name: 'register' }">
-                Создать аккаунт
+                Create an account
             </RouterLink>
         </template>
     </AuthLayout>
