@@ -59,3 +59,7 @@ export async function addSessionTask(uuid: string, taskUuid: string, position: n
 export async function updateSessionTask(uuid: string, taskUuid: string, action: 'complete' | 'skip'): Promise<SessionTask> {
     return (await http.patch<{ data: SessionTask }>(`/api/sessions/${uuid}/tasks/${taskUuid}/${action}`)).data.data
 }
+
+export async function skipSessionTask(uuid: string, taskUuid: string): Promise<{ data: SessionTask; replacement: SessionTask | null }> {
+    return (await http.patch<{ data: SessionTask; replacement: SessionTask | null }>(`/api/sessions/${uuid}/tasks/${taskUuid}/skip`)).data
+}

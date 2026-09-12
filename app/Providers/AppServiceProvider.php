@@ -6,6 +6,8 @@ use App\Models\NightSession;
 use App\Models\NightSessionTask;
 use App\Policies\SessionPolicy;
 use App\Policies\SessionTaskPolicy;
+use App\Services\TaskSelection\Strategies\ShortestTaskStrategy;
+use App\Services\TaskSelection\Strategies\TaskSelectionStrategy;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 
@@ -16,7 +18,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        $this->app->bind(TaskSelectionStrategy::class, ShortestTaskStrategy::class);
     }
 
     /**
@@ -26,5 +28,6 @@ class AppServiceProvider extends ServiceProvider
     {
         Gate::policy(NightSession::class, SessionPolicy::class);
         Gate::policy(NightSessionTask::class, SessionTaskPolicy::class);
+
     }
 }

@@ -25,7 +25,8 @@ class CreateSessionSelectionTest extends TestCase
             'difficulty' => 'normal',
             'estimated_time_minutes' => 30,
         ];
-        $second = Task::factory()->create($attributes);
+        $second = Task::factory()->create(array_replace($attributes, ['estimated_time_minutes' => 10]));
+        Task::factory()->create($attributes);
         foreach ([
             ['estimated_time_minutes' => 31],
             ['difficulty' => 'hard'],
@@ -46,16 +47,17 @@ class CreateSessionSelectionTest extends TestCase
         ])->assertCreated()
             ->assertJsonPath('data.tasks_count', 2)
             ->assertJsonCount(2, 'data.tasks')
-            ->assertJsonPath('data.tasks.0.task.uuid', $task->uuid)
+            ->assertJsonPath('data.tasks.0.task.uuid', $second->uuid)
             ->assertJsonPath('data.tasks.0.position', 1)
             ->assertJsonPath('data.tasks.0.status', 'selected')
-            ->assertJsonPath('data.tasks.1.task.uuid', $second->uuid)
+            ->assertJsonPath('data.tasks.1.task.uuid', $task->uuid)
             ->assertJsonPath('data.tasks.1.position', 2);
 
         $this->getJson('/api/sessions/' . $response->json('data.uuid'))->assertOk()
             ->assertJsonPath('data.tasks_count', 2)
-            ->assertJsonPath('data.tasks.0.task.uuid', $task->uuid)
-            ->assertJsonPath('data.tasks.1.task.uuid', $second->uuid);
+            ->assertJsonPath('data.tasks.0.task.uuid', $second->uuid)
+            ->assertJsonPath('data.tasks.1.task.uuid', $task->uuid);
+        $this->assertSame(30, collect($response->json('data.tasks'))->sum('task.estimated_time_minutes'));
         $this->assertDatabaseCount('night_session_tasks', 2);
     }
 

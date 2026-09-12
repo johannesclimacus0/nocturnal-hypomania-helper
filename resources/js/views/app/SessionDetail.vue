@@ -10,7 +10,7 @@ import BaseSelect from '../../components/BaseSelect.vue'
 import EmptyState from '../../components/EmptyState.vue'
 import StatusDot from '../../components/StatusDot.vue'
 import { getTasks, type Task } from '../../api/tasks'
-import { addSessionTask, finishSession, getSession, updateSessionTask, type Session } from '../../api/sessions'
+import { addSessionTask, finishSession, getSession, skipSessionTask, updateSessionTask, type Session } from '../../api/sessions'
 import { duration, formatDate, requestMessage, shortUuid } from '../../utils/display'
 
 const route = useRoute()
@@ -20,6 +20,7 @@ const tasks = ref<Task[]>([])
 const loading = ref(true)
 const error = ref('')
 const actionError = ref('')
+const skipNotice = ref('')
 const tasksError = ref('')
 const busy = ref(false)
 const selected = ref('')
@@ -31,6 +32,7 @@ let timer: ReturnType<typeof setInterval> | undefined
 let loadVersion = 0
 
 const sequence = computed(() => session.value?.tasks ?? [])
+const visibleSequence = computed(() => sequence.value.filter(task => task.status !== 'skipped'))
 const current = computed(() => sequence.value.find(task => task.uuid === selected.value))
 const completed = computed(() => sequence.value.filter(task => task.status === 'completed').length)
 
@@ -82,6 +84,7 @@ const load = async function (): Promise<void> {
     loading.value = true
     error.value = ''
     actionError.value = ''
+    skipNotice.value = ''
     tasksError.value = ''
     session.value = null
     tasks.value = []
@@ -90,7 +93,7 @@ const load = async function (): Promise<void> {
         const result = await getSession(uuid.value)
         if (version !== loadVersion) return
         session.value = result
-        selected.value = result.tasks?.find(task => task.status === 'selected')?.uuid ?? result.tasks?.[0]?.uuid ?? ''
+        selected.value = result.tasks?.find(task => task.status === 'selected')?.uuid ?? result.tasks?.find(task => task.status !== 'skipped')?.uuid ?? ''
         if (!result.ended_at) await loadAvailable()
     } catch (cause) {
         if (version === loadVersion) error.value = requestMessage(cause, 'Could not load session.')
@@ -131,6 +134,19 @@ const change = async function (action: 'complete' | 'skip'): Promise<void> {
     if (!entry || entry.status !== 'selected') return
     await mutate(async () => {
         const target = session.value!
+        skipNotice.value = ''
+        if (action === 'skip') {
+            const { data: skipped, replacement } = await skipSessionTask(target.uuid, entry.uuid)
+            if (session.value !== target) return
+            target.tasks = (target.tasks ?? []).flatMap(task => task.uuid === skipped.uuid
+                ? replacement ? [skipped, replacement] : [skipped]
+                : [task])
+            target.tasks_count = target.tasks.length
+            selected.value = replacement?.uuid ?? target.tasks.find(task => task.status === 'selected')?.uuid
+                ?? target.tasks.find(task => task.status === 'completed')?.uuid ?? ''
+            if (!replacement) skipNotice.value = 'Task skipped. No matching replacement within the remaining time.'
+            return
+        }
         const result = await updateSessionTask(target.uuid, entry.uuid, action)
         if (session.value !== target) return
 
@@ -173,11 +189,11 @@ onUnmounted(() => { clearInterval(timer); loadVersion++ })
                 <Panel title="task sequence">
                     <template #actions>
                         <span class="text-xs text-zinc-400">
-                            {{ completed }} / {{ sequence.length }} completed
+                            {{ completed }} / {{ visibleSequence.length }} completed
                         </span>
                     </template>
-                    <EmptyState v-if="!sequence.length" message="no tasks in this session" />
-                    <button v-for="(entry, index) in sequence" :key="entry.uuid" @click="selected = entry.uuid" type="button" class="flex w-full items-center gap-3 border-b border-zinc-800 px-3 py-3 text-left text-xs last:border-b-0 hover:bg-zinc-900 focus-visible:outline-1 focus-visible:-outline-offset-1 focus-visible:outline-zinc-400" :class="{ 'bg-zinc-900': selected === entry.uuid }">
+                    <EmptyState v-if="!visibleSequence.length" message="no tasks in this session" />
+                    <button v-for="(entry, index) in visibleSequence" :key="entry.uuid" @click="selected = entry.uuid" type="button" class="flex w-full items-center gap-3 border-b border-zinc-800 px-3 py-3 text-left text-xs last:border-b-0 hover:bg-zinc-900 focus-visible:outline-1 focus-visible:-outline-offset-1 focus-visible:outline-zinc-400" :class="{ 'bg-zinc-900': selected === entry.uuid }">
                         <span class="shrink-0 tabular-nums text-zinc-500">
                             {{ index + 1 }}
                         </span>
@@ -194,6 +210,7 @@ onUnmounted(() => { clearInterval(timer); loadVersion++ })
                         </span>
                     </button>
                 </Panel>
+                <p v-if="skipNotice" role="status" class="mt-3 text-xs text-zinc-400">{{ skipNotice }}</p>
                 <form v-if="!session.ended_at" @submit.prevent="add" class="mt-5 space-y-3">
                     <AlertMessage v-if="tasksError" :message="tasksError">
                         <button type="button" @click="loadAvailable" class="underline decoration-zinc-600 underline-offset-4 hover:text-lime-200">

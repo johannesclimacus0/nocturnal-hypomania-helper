@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Actions\Sessions\CreateSessionAction;
 use App\Actions\Sessions\FinishSessionAction;
+use App\Actions\Sessions\StartSessionAction;
 use App\DTO\Sessions\CreateSessionData;
 use App\Enums\TaskDifficulty;
 use App\Http\Requests\Sessions\CreateSessionRequest;
@@ -30,7 +31,7 @@ class SessionController extends Controller
             ->latest('started_at')->latest('id')->paginate(20));
     }
 
-    public function store(CreateSessionRequest $request, CreateSessionAction $action): JsonResponse
+    public function store(CreateSessionRequest $request, StartSessionAction $action): JsonResponse
     {
         $data = $request->validated();
         $sessionData = new CreateSessionData(

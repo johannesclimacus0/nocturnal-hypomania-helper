@@ -11,11 +11,18 @@ use App\Services\TaskSelection\Pipes\ExcludeSessionTasks;
 use App\Services\TaskSelection\Pipes\FilterDifficulty;
 use App\Services\TaskSelection\Pipes\FilterTaxonomy;
 use App\Services\TaskSelection\Pipes\LimitEstimatedTime;
+use App\Services\TaskSelection\Strategies\TaskSelectionStrategy;
 use Illuminate\Pipeline\Pipeline;
 use Illuminate\Support\Facades\Gate;
 
 final class SelectNextTaskAction
 {
+    public function __construct(
+        private TaskSelectionStrategy $strategy,
+    )
+    {
+    }
+
     public function handle(User $actor, NightSession $session): ?Task
     {
         Gate::forUser($actor)->authorize('update', $session);
@@ -42,6 +49,6 @@ final class SelectNextTaskAction
                 FilterTaxonomy::class,
             ])->thenReturn();
 
-        return $context->candidates->orderBy('tasks.id')->first();
+        return $this->strategy->select($context->candidates);
     }
 }
