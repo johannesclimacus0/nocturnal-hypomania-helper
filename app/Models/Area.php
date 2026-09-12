@@ -39,4 +39,9 @@ class Area extends Model
     {
         return $this->hasMany(Task::class);
     }
+
+    public function sessions(): HasMany
+    {
+        return $this->hasMany(NightSession::class);
+    }
 }

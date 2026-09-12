@@ -15,6 +15,7 @@ final class AreaController extends Controller
             'data' => $action->handle($request->user()),
         ]);
     }
+
     public function store(Request $request): JsonResponse
     {
         $data = $request->validate([

@@ -26,7 +26,7 @@ class TaskController extends Controller
      */
     public function index(Request $request): AnonymousResourceCollection|Response
     {
-        if (! $request->expectsJson()) {
+        if (!$request->expectsJson()) {
             return response()->view('app');
         }
 
@@ -66,7 +66,7 @@ class TaskController extends Controller
      */
     public function show(Task $task): TaskResource|Response
     {
-        if (! request()->expectsJson()) {
+        if (!request()->expectsJson()) {
             return response()->view('app');
         }
 

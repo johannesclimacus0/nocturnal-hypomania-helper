@@ -44,6 +44,11 @@ class TaskType extends Model
         return $this->hasMany(Task::class);
     }
 
+    public function sessions(): HasMany
+    {
+        return $this->hasMany(NightSession::class);
+    }
+
     public function scopeAvailable(Builder $query, User $user): Builder
     {
         return $query->where(function (Builder $query) use ($user) {

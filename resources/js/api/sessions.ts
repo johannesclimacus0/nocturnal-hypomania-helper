@@ -1,6 +1,6 @@
 import http from './http'
 import { getAllPages } from './pagination'
-import type { Task } from './tasks'
+import type { Task, TaskDifficulty } from './tasks'
 
 export interface SessionTask {
     uuid: string
@@ -18,6 +18,14 @@ export interface Session {
     ended_at: string | null
     created_at: string | null
     tasks_count: number
+    available_time_minutes: number
+    difficulty: TaskDifficulty | null
+    area_uuid: string | null
+    area_name: string | null
+    category_uuid: string | null
+    category_name: string | null
+    task_type_uuid: string | null
+    task_type_name: string | null
     tasks?: SessionTask[]
 }
 export function getSessions(): Promise<Session[]> {
@@ -28,8 +36,16 @@ export async function getSession(uuid: string): Promise<Session> {
     return (await http.get<{ data: Session }>(`/api/sessions/${uuid}`)).data.data
 }
 
-export async function createSession(): Promise<Session> {
-    return (await http.post<{ data: Session }>('/api/sessions')).data.data
+export interface CreateSessionPayload {
+    available_time_minutes: number
+    difficulty: 'easy' | 'normal' | 'hard' | null
+    area_uuid: string | null
+    category_uuid: string | null
+    task_type_uuid: string | null
+}
+
+export async function createSession(data: CreateSessionPayload): Promise<Session> {
+    return (await http.post<{ data: Session }>('/api/sessions', data)).data.data
 }
 
 export async function finishSession(uuid: string): Promise<Session> {

@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Actions\Sessions\CreateSessionAction;
 use App\Actions\Sessions\FinishSessionAction;
+use App\DTO\Sessions\CreateSessionData;
+use App\Enums\TaskDifficulty;
 use App\Http\Requests\Sessions\CreateSessionRequest;
 use App\Http\Resources\SessionResource;
 use App\Models\NightSession;
@@ -17,7 +19,7 @@ class SessionController extends Controller
 {
     public function index(Request $request): AnonymousResourceCollection|Response
     {
-        if (! $request->expectsJson()) {
+        if (!$request->expectsJson()) {
             return response()->view('app');
         }
 
@@ -30,15 +32,25 @@ class SessionController extends Controller
 
     public function store(CreateSessionRequest $request, CreateSessionAction $action): JsonResponse
     {
-        $session = $action->handle($request->user());
+        $data = $request->validated();
+        $sessionData = new CreateSessionData(
+            availableTimeMinutes: $data['available_time_minutes'],
+            difficulty: isset($data['difficulty']) ? TaskDifficulty::from($data['difficulty']) : null,
+            areaUuid: $data['area_uuid'] ?? null,
+            categoryUuid: $data['category_uuid'] ?? null,
+            taskTypeUuid: $data['task_type_uuid'] ?? null,
+        );
 
-        return (new SessionResource($session->loadCount('nightSessionTasks')))
-            ->response()->setStatusCode(Response::HTTP_CREATED);
+        $session = $action->handle($request->user(), $sessionData);
+
+        return new SessionResource($session->loadCount('nightSessionTasks'))
+            ->response()
+            ->setStatusCode(Response::HTTP_CREATED);
     }
 
     public function show(NightSession $session): SessionResource|Response
     {
-        if (! request()->expectsJson()) {
+        if (!request()->expectsJson()) {
             return response()->view('app');
         }
 
