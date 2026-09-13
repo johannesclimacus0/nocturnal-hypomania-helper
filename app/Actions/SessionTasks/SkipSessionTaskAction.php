@@ -17,8 +17,7 @@ final class SkipSessionTaskAction
     public function __construct(
         private readonly SelectNextTaskAction $selectNextTask,
         private readonly CreateSessionTaskAction $createSessionTask,
-    )
-    {}
+    ) {}
 
     public function handle(
         User $actor,

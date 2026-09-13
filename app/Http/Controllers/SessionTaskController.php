@@ -54,7 +54,7 @@ class SessionTaskController extends Controller
             ->additional([
                 'replacement' => $result->replacement === null ? null : new SessionTaskResource(
                     $result->replacement->load(['task.taskType', 'task.area', 'task.category']),
-                )
+                ),
             ]);
     }
 }

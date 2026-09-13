@@ -14,8 +14,6 @@ class NightSessionEnded implements ShouldDispatchAfterCommit
     /**
      * Create a new event instance.
      */
-    public function __construct(public NightSession $session) {
-
-    }
+    public function __construct(public NightSession $session) {}
 
 }
