@@ -19,7 +19,8 @@ class SessionApiTest extends TestCase
         $owner = User::factory()->create();
         NightSession::factory()->create();
         $this->actingAs($owner);
-        $created = $this->postJson('/sessions')->assertCreated()
+        $this->postJson('/sessions')->assertUnprocessable()->assertJsonValidationErrors('available_time_minutes');
+        $created = $this->postJson('/sessions', ['available_time_minutes' => 30])->assertCreated()
             ->assertJsonPath('data.tasks_count', 0)->assertJsonPath('data.ended_at', null);
         $uuid = $created->json('data.uuid');
         $session = NightSession::where('uuid', $uuid)->firstOrFail();
@@ -55,9 +56,14 @@ class SessionApiTest extends TestCase
         $this->patchJson($url . '/' . $uuid . '/complete')->assertOk()
             ->assertJsonPath('data.status', 'completed')->assertJsonPath('data.skipped_at', null);
         $this->assertNotNull(NightSessionTask::where('uuid', $uuid)->firstOrFail()->completed_at);
-        $this->patchJson($url . '/' . $uuid . '/skip')->assertOk()
+        $this->patchJson($url . '/' . $uuid . '/skip')->assertUnprocessable()
+            ->assertJsonValidationErrors('session_task');
+        $this->assertSame(NightSessionTaskStatus::Completed, NightSessionTask::where('uuid', $uuid)->firstOrFail()->status);
+
+        $selected = NightSessionTask::factory()->for($session)->create();
+        $this->patchJson($url . '/' . $selected->uuid . '/skip')->assertOk()
             ->assertJsonPath('data.status', 'skipped')->assertJsonPath('data.completed_at', null);
-        $this->assertNotNull(NightSessionTask::where('uuid', $uuid)->firstOrFail()->skipped_at);
+        $this->assertNotNull($selected->refresh()->skipped_at);
     }
 
     public function test_foreign_users_cannot_read_or_modify_sessions(): void

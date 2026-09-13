@@ -16,6 +16,7 @@ class NightSessionFactory extends Factory
     {
         return [
             'user_id' => User::factory(),
+            'available_time_minutes' => 30,
             'started_at' => fake()->dateTimeBetween('-1 month'),
             'ended_at' => null,
         ];

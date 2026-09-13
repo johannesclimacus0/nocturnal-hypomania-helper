@@ -7,6 +7,7 @@ use App\Actions\Sessions\FinishSessionAction;
 use App\Actions\SessionTasks\CompleteSessionTaskAction;
 use App\Actions\SessionTasks\CreateSessionTaskAction;
 use App\Actions\SessionTasks\SkipSessionTaskAction;
+use App\DTO\Sessions\CreateSessionData;
 use App\DTO\SessionTasks\CreateSessionTaskData;
 use App\DTO\SessionTasks\UpdateSessionTaskData;
 use App\Enums\NightSessionTaskStatus;
@@ -82,11 +83,51 @@ class SessionTaskWorkflowTest extends TestCase
         $this->assertNotNull($completed->completed_at);
         $this->assertNull($completed->skipped_at);
 
-        $skipped = app(SkipSessionTaskAction::class)->handle($actor, $entry->nightSession, $data);
+        $result = app(SkipSessionTaskAction::class)->handle($actor, $entry->nightSession, new UpdateSessionTaskData($other->uuid));
+        $skipped = $result->skipped;
+        $this->assertTrue($skipped->is($other));
         $this->assertSame(NightSessionTaskStatus::Skipped, $skipped->status);
         $this->assertNotNull($skipped->skipped_at);
         $this->assertNull($skipped->completed_at);
-        $this->assertSame(NightSessionTaskStatus::Selected, $other->refresh()->status);
+        $this->assertNull($result->replacement);
+        $this->assertSame(NightSessionTaskStatus::Completed, $entry->refresh()->status);
+    }
+
+    public function test_skip_replaces_the_task_at_the_same_position(): void
+    {
+        $session = NightSession::factory()->create(['available_time_minutes' => 30]);
+        $task = Task::factory()->for($session->user)->create(['estimated_time_minutes' => 30]);
+        $entry = NightSessionTask::factory()->for($session)->for($task)->create(['position' => 2]);
+        $candidate = Task::factory()->for($session->user)->create(['estimated_time_minutes' => 30]);
+
+        $result = app(SkipSessionTaskAction::class)->handle($session->user, $session, new UpdateSessionTaskData($entry->uuid));
+
+        $this->assertTrue($result->skipped->is($entry));
+        $this->assertSame(NightSessionTaskStatus::Skipped, $entry->refresh()->status);
+        $this->assertNotNull($result->replacement);
+        $replacement = $result->replacement->refresh();
+        $this->assertSame($candidate->id, $replacement->task_id);
+        $this->assertSame($session->id, $replacement->night_session_id);
+        $this->assertSame(2, $replacement->position);
+        $this->assertSame(NightSessionTaskStatus::Selected, $replacement->status);
+        $this->assertSame(2, $session->nightSessionTasks()->count());
+    }
+
+    public function test_skip_rejects_a_finished_session_without_changing_the_task(): void
+    {
+        $session = NightSession::factory()->completed()->create();
+        $entry = NightSessionTask::factory()->for($session)->create();
+
+        try {
+            app(SkipSessionTaskAction::class)->handle($session->user, $session, new UpdateSessionTaskData($entry->uuid));
+            $this->fail('Skipping a task in a finished session must be rejected.');
+        } catch (ValidationException $exception) {
+            $this->assertArrayHasKey('session_task', $exception->errors());
+        }
+
+        $this->assertSame(NightSessionTaskStatus::Selected, $entry->refresh()->status);
+        $this->assertNull($entry->skipped_at);
+        $this->assertSame(1, $session->nightSessionTasks()->count());
     }
 
     public function test_updates_reject_foreign_users_and_mismatched_sessions(): void
@@ -113,7 +154,7 @@ class SessionTaskWorkflowTest extends TestCase
     {
         $owner = User::factory()->create();
         $other = User::factory()->create();
-        $session = app(CreateSessionAction::class)->handle($owner);
+        $session = app(CreateSessionAction::class)->handle($owner, new CreateSessionData(30, null, null, null, null));
         $entry = NightSessionTask::factory()->for($session)->create();
         foreach (['view', 'update', 'delete'] as $ability) {
             $this->assertTrue(Gate::forUser($owner)->allows($ability, $entry));
@@ -141,7 +182,9 @@ class SessionTaskWorkflowTest extends TestCase
         $url = '/_test/sessions/' . $session->uuid . '/tasks';
 
         $this->postJson('/_test/sessions')->assertForbidden();
-        $this->actingAs($session->user)->postJson('/_test/sessions')->assertNoContent();
+        $this->actingAs($session->user)->postJson('/_test/sessions')->assertUnprocessable()
+            ->assertJsonValidationErrors('available_time_minutes');
+        $this->postJson('/_test/sessions', ['available_time_minutes' => 30])->assertNoContent();
         $this->postJson($url, ['task_uuid' => $task->uuid, 'position' => 0])->assertOk();
         $this->postJson($url, ['task_uuid' => $task->uuid, 'position' => null])->assertOk();
         $this->postJson($url, ['task_uuid' => $foreignTask->uuid])->assertUnprocessable()->assertJsonValidationErrors('task_uuid');

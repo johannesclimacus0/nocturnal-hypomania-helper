@@ -23,7 +23,7 @@ class SelectNextTaskTest extends TestCase
     {
         $source = Task::factory()->withTaxonomy()->create();
         $session = NightSession::factory()->for($source->user)->create([
-            'available_time_minutes' => 30,
+            'available_time_minutes' => 90,
             'difficulty' => TaskDifficulty::Normal,
             'area_id' => $source->area_id,
             'category_id' => $source->category_id,
@@ -84,5 +84,27 @@ class SelectNextTaskTest extends TestCase
 
         $this->expectException(AuthorizationException::class);
         app(SelectNextTaskAction::class)->handle(User::factory()->create(), $session);
+    }
+
+    public function test_selected_and_completed_tasks_exhaust_the_time_budget(): void
+    {
+        $session = NightSession::factory()->create(['available_time_minutes' => 30]);
+        foreach ([NightSessionTaskStatus::Selected, NightSessionTaskStatus::Completed] as $status) {
+            $task = Task::factory()->for($session->user)->create(['estimated_time_minutes' => 15]);
+            NightSessionTask::factory()->for($session)->for($task)->create(['status' => $status]);
+        }
+        Task::factory()->for($session->user)->create(['estimated_time_minutes' => 1]);
+
+        $this->assertNull(app(SelectNextTaskAction::class)->handle($session->user, $session));
+    }
+
+    public function test_skipped_tasks_do_not_consume_the_time_budget(): void
+    {
+        $session = NightSession::factory()->create(['available_time_minutes' => 30]);
+        $skipped = Task::factory()->for($session->user)->create(['estimated_time_minutes' => 30]);
+        NightSessionTask::factory()->for($session)->for($skipped)->skipped()->create();
+        $candidate = Task::factory()->for($session->user)->create(['estimated_time_minutes' => 30]);
+
+        $this->assertTrue($candidate->is(app(SelectNextTaskAction::class)->handle($session->user, $session)));
     }
 }
