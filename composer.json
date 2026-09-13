@@ -17,6 +17,7 @@
         "laravel/tinker": "^3.0"
     },
     "require-dev": {
+        "barryvdh/laravel-debugbar": "^4.4",
         "barryvdh/laravel-ide-helper": "^3.7",
         "fakerphp/faker": "^1.23",
         "johannesclimacus/artisan-factory": "*",

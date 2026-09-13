@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Actions\Tasks\CreateTaskAction;
 use App\Actions\Tasks\DeleteTaskAction;
+use App\Actions\Tasks\GetTaskAction;
+use App\Actions\Tasks\GetTasksAction;
 use App\Actions\Tasks\UpdateTaskAction;
 use App\DTO\Tasks\CreateTaskData;
 use App\DTO\Tasks\UpdateTaskData;
@@ -21,28 +23,15 @@ use Symfony\Component\HttpFoundation\Response;
 
 class TaskController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index(Request $request): AnonymousResourceCollection|Response
+    public function index(Request $request, GetTasksAction $action): AnonymousResourceCollection|Response
     {
         if (!$request->expectsJson()) {
             return response()->view('app');
         }
 
-        Gate::authorize('viewAny', Task::class);
-
-        $tasks = $request->user()->tasks()
-            ->with(['taskType', 'area', 'category'])
-            ->latest('id')
-            ->paginate(20);
-
-        return TaskResource::collection($tasks);
+        return TaskResource::collection($action->handle($request->user()));
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(CreateTaskRequest $request, CreateTaskAction $action): JsonResponse
     {
         $user = $request->user();
@@ -61,28 +50,20 @@ class TaskController extends Controller
         return new TaskResource($task)->response()->setStatusCode(Response::HTTP_CREATED);
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Task $task): TaskResource|Response
+    public function show(Request $request, Task $task, GetTaskAction $action): TaskResource|Response
     {
-        if (!request()->expectsJson()) {
+        if (!$request->expectsJson()) {
             return response()->view('app');
         }
 
-        Gate::authorize('view', $task);
-
-        return new TaskResource($task->load(['taskType', 'area', 'category']));
+        return new TaskResource($action->handle($request->user(), $task));
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(UpdateTaskRequest $request, Task $task, UpdateTaskAction $action): JsonResponse
+    public function update(UpdateTaskRequest $request, Task $task, UpdateTaskAction $action, GetTaskAction $getTask): JsonResponse
     {
         $user = $request->user();
         $data = $request->validated();
-        $task->loadMissing(['taskType', 'area', 'category']);
+        $task = $getTask->handle($user, $task);
 
         $task = $action->handle($user, $task, new UpdateTaskData(
             title: $data['title'] ?? $task->title,
@@ -98,9 +79,6 @@ class TaskController extends Controller
         return new TaskResource($task)->response();
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(Request $request, Task $task, DeleteTaskAction $action): Response
     {
         Gate::authorize('delete', $task);

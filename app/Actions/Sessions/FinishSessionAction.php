@@ -18,7 +18,7 @@ final class FinishSessionAction
                 $session->update(['ended_at' => now()]);
             }
 
-            return $session;
+            return $session->loadCount('nightSessionTasks');
         });
     }
 }

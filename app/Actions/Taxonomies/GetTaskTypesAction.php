@@ -2,23 +2,16 @@
 
 namespace App\Actions\Taxonomies;
 
-use App\Models\TaskType;
 use App\Models\User;
+use App\Services\Caching\TaskTypeCacheService;
 use Illuminate\Database\Eloquent\Collection;
 
 class GetTaskTypesAction
 {
+    public function __construct(private readonly TaskTypeCacheService $cache) {}
+
     public function handle(User $actor): Collection
     {
-        return TaskType::query()
-            ->available($actor)
-            ->orderBy('name')
-            ->get([
-                'uuid',
-                'name',
-                'slug',
-                'user_id',
-                'is_system',
-            ]);
+        return $this->cache->getForUser($actor);
     }
 }
