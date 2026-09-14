@@ -38,11 +38,17 @@ class ClearOutdatedSessionsCommand extends Command
             });
         }
 
-        $count = $query->delete();
+        $count = 0;
 
-        $sillyWordThatMustBeInPluralSometimes = Str::plural('session', $count);
+        $query->chunkById(100, function($sessions) use (&$count) {
+            foreach ($sessions as $session) {
+                $session->delete();
 
-        $this->info('Cleared ' . $count . ' ' . $sillyWordThatMustBeInPluralSometimes. ' records');
+                $count++;
+            }
+        });
+
+        $this->info('Cleared ' . $count . ' ' . Str::plural('session', $count). ' records');
 
         return self::SUCCESS;
     }
